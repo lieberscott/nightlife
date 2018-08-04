@@ -15,8 +15,10 @@
   "author": "Scott Lieber",
   "license": "GPL-3.0",
   "dependencies": {
+    "axios": "^0.18.0",
     "express": "^4.16.3",
     "mongodb": "^3.1.1",
+    "node-sass-middleware": "^0.11.0",
     "pug": "^2.0.3",
     "react": "^16.4.2",
     "react-dom": "^16.4.2"

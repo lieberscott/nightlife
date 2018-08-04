@@ -9,12 +9,12 @@ const Header = (props) => {
   )
 }
 
-App.propTypes = {
-  headerMessage: PropTypes.string
+Header.propTypes = {
+  message: PropTypes.string
 }
 
-App.defaultProps = {
-  headerMessage: "Hello!"
+Header.defaultProps = {
+  message: "Hello!"
 }
 
 export default Header;
