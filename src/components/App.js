@@ -1,19 +1,22 @@
 import React from 'react';
-import axios from 'axios'; // allows us to make ajax calls
-import Header from './Header';
+import PropTypes from 'prop-types'; // https://www.npmjs.com/package/prop-types
+import Bar from './Bar';
+import fetch from 'node-fetch';
 
 
 
 class App extends React.Component {
   state = {
-    header: "Please log in",
     bars: []
   };
 
-  componentDidMount() {
-    axios.get('/api/bars')
-    .then(resp => {
-      console.log(resp);
+  componentWillMount() {
+    fetch("/api")
+    .then((res) => res.json())
+    .then((json) => {
+      this.setState({
+        bars: json.data // should be an array of objects
+      })
     })
     .catch(err => console.log(err));
   }
@@ -21,10 +24,32 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Header message={ this.state.header } />
+        <div className="row">
+          { this.state.bars.map(bar =>
+            // console.log(bar);
+            <Bar key={ bar.id } { ...bar } />
+          )}
+        </div>
       </div>
     )
   }
+}
+
+App.propTypes = {
+  bars: PropTypes.array
+}
+
+App.defaultProps = {
+  bars: [{
+    id: 1,
+    name: "Loading",
+    rating: null,
+    price: null,
+    img_url: null,
+    location: {
+      address1: null
+    }
+  }]
 }
 
 export default App;
