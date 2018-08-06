@@ -71,10 +71,10 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
   app.get('/', async (req, res) => {
 
     if (req.session.passport && req.session.passport.user) { // need both because otherwise will be undefined and will break
-      res.render(process.cwd() + '/views/public/index', { signedIn: true, name: req.session.display_name });
+      res.render(process.cwd() + '/views/public/index', { loggedIn: true, name: req.session.display_name });
     }
     else {
-      res.render(process.cwd() + '/views/public/index', { signedIn: false });
+      res.render(process.cwd() + '/views/public/index', { loggedIn: false, name: null });
     }
   });
 
@@ -118,15 +118,28 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
 
   app.route('/auth/twitter')
   .get(passport.authenticate('twitter'), (req, res) => {
-    res.redirect('/');
+    console.log("hello");
+    // res.redirect('/');
   });
 
   app.route('/auth/twitter/callback')
   .get(passport.authenticate('twitter', { failureRedirect: '/' }), (req, res) => {
+    console.log("hello2");
     req.session.user_id = req.user.id; // number
     req.session.display_name = req.user.displayName || ""; // Scott Lieber
     req.session.username = req.user.username || ""; // lieberscott
     req.session.provider = req.user.provider || ""; // twitter
+    res.redirect('/');
+  });
+
+  app.route('/checklogin')
+  .get((req, res) => {
+    res.redirect('/'); // ('/') will return the checklogin logic as json to the React component
+  });
+
+  app.route('/logout')
+  .get((req, res) => {
+    req.logout();
     res.redirect('/');
   });
 

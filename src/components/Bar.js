@@ -6,7 +6,7 @@ class Bar extends React.Component {
     countMeIn: false, // coming from Mongo
     loggedIn: true,
     numberGoing: 0, // coming from Mongo
-    key: this.props.key
+    key: this.props.id // yelp ID from api call
   }
 
   rsvp() {

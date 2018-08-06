@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types'; // https://www.npmjs.com/package/prop-types
 import Bar from './Bar';
+import Login from './Login';
 import Search from './Search';
 import fetch from 'node-fetch';
 
@@ -8,8 +9,32 @@ import fetch from 'node-fetch';
 
 class App extends React.Component {
   state = {
-    bars: [] // will be an array of objects
+    bars: [], // will be an array of objects
+    loggedIn: false,
+    name: null
   };
+
+  login() {
+    fetch('/auth/twitter') // in the server, this will ultimately redirect to ('/')
+    .then((res) => res.json())
+    .then((json) => {
+      this.setState({
+        loggedIn: json.loggedIn,
+        name: json.name
+      })
+    })
+  }
+
+  logout() {
+    fetch('/logout') // in the server, this will ultimately redirect to ('/')
+    .then((res) => res.json())
+    .then((json) => {
+      this.setStaet({
+        loggedIn: json.loggedIn,
+        name: json.name
+      });
+    });
+  }
 
   search() {
     let loc = document.getElementById("location").value;
@@ -45,11 +70,21 @@ class App extends React.Component {
       });
     }
 
+    fetch('/checklogin')
+    .then((res) => res.json())
+    .then((json) => {
+      this.setState({
+        loggedIn: json.loggedIn,
+        name: json.name
+      });
+    });
+
   }
 
   render() {
     return (
       <div>
+        <Login loggedIn={ this.state.loggedIn } name={ this.state.name } login={ () => this.login() } logout={ () => this.logout() } />
         <Search search={ () => this.search() }/>
         <div className="row">
           { this.state.bars.map(bar =>

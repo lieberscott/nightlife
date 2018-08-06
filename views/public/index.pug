@@ -9,10 +9,7 @@ html
     div.container.container-fluid.text-center
       h1 Nightlife coordination app
       h6 A Free Code Camp project
-      if signedIn
-        p Hi #[span= name]
-      else
-        p Please sign in
+      //
         div.input-group
           input.form-control#location(type="text" name="symbol" placeholder="Location" aria-label="Location" aria-describedby="Location")
           div.input-group-append
