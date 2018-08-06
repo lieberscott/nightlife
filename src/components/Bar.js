@@ -4,28 +4,42 @@ import React from 'react';
 class Bar extends React.Component {
   state = {
     countMeIn: false, // coming from Mongo
-    loggedIn: false,
-    numberGoing: 0 // coming from Mongo
+    loggedIn: true,
+    numberGoing: 0, // coming from Mongo
+    key: this.props.key
+  }
+
+  rsvp() {
+    let url = '/rsvp/?&yelp_id=' + key;
+    fetch(url, { method: "POST" })
+    .then((res) => res.json())
+    .then((json) => {
+      this.setState({
+        numberGoing: this.state.numberGoing + 1,
+        countMeIn: true
+      });
+    })
   }
 
   render() {
     return (
       <div className="col-md-3 onecomponent">
         <div>
-          { props.name }
+          { this.props.name }
         </div>
         <div>
-          { props.rating } {props.price }
+          { this.props.rating } { this.props.price }
         </div>
         <div className="image">
-          <img src={ props.image_url } />
+          <img src={ this.props.image_url } />
         </div>
         <div>
-          { props.location.address1 }
+          { this.props.location.address1 }
         </div>
         <hr/>
         <div>
-          Number going <span>Count me in</span>
+          { this.state.numberGoing } going
+          { this.state.loggedIn ? <span onClick={ this.rsvp }>Count me in</span> : <span onClick={ this.login }> Please log in </span> }
         </div>
       </div>
     )

@@ -12,6 +12,14 @@ img {
   height: 200px;
 }
 
-.onecomponent {
-  height: 350px;
+.input-group {
+  padding-bottom: 20px;
 }
+
+.onecomponent {
+  height: 400px;
+}
+
+/* #location {
+  max-width: 300px;
+} */
