@@ -7,6 +7,10 @@ img {
   border: 1px solid black;
 }
 
+.container {
+  margin-top: 40px;
+}
+
 .image {
   overflow: hidden;
   height: 200px;
