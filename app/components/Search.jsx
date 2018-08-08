@@ -1,7 +1,10 @@
-import React from 'react';
+const React = require('react');
 
 class Search extends React.Component {
-  state = { }
+  constructor(props) {
+    super(props);
+    this.state = { };
+  }
 
   render() {
     return (
@@ -15,4 +18,4 @@ class Search extends React.Component {
   }
 }
 
-export default Search;
+module.exports = Search;

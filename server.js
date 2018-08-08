@@ -1,161 +1,163 @@
-import dotenv from 'dotenv';
-dotenv.config();
-import config from './config';
-import express from 'express';
-import fetch from 'node-fetch';
-import mon from 'mongodb';
-import passport from 'passport';
-import session from 'express-session';
-import TwitterStrategy from 'passport-twitter';
-
-
-
-// import apiRouter from './api';
-// import sassMiddleware from 'node-sass-middleware';
-// import path from 'path';
-
+const bodyparser = require('body-parser');
+const express = require('express');
+const expressJwt = require('express-jwt');
 const app = express();
-const mongo = mon.MongoClient;
-const ObjectID = mon.ObjectID;
+const fetch = require('node-fetch');
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const request = require('request');
 
-app.use(express.static('public'));
-// app.use('/api', apiRouter);
 
-// app.use(sassMiddleware({ // not using SASS because it wasn't working with Bootstrap/React Components
-//   src: path.join(__dirname, 'sass'),
-//   dest: path.join(__dirname, 'public')
-// }));
+// passport configuration (from passport.js file)
+const passportConfig = require('./passport');
+passportConfig();
 
-app.use(session({
-  secret: process.env.SECRET, // make this SECRET in .env file
-  resave: false,
-  saveUninitialized: true
+// cors
+const cors = require('cors');
+const corsOption = {
+  origin: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  exposedHeaders: ['x-auth-token']
+};
+app.use(cors(corsOption));
+
+// body parser
+app.use(bodyparser.urlencoded({
+  extended: true
 }));
+app.use(bodyparser.json());
 
-app.use(passport.initialize());
-app.use(passport.session());
+// jsonwebtokens functions
+const createToken = function(auth) {
+  return jwt.sign({
+    id: auth.id
+  }, process.env.SECRET,
+  {
+    expiresIn: 60 * 120
+  });
+};
 
-app.set('view engine', 'pug');
+const generateToken =  function(req, res, next) {
+  req.token = createToken(req.auth);
+  return next();
+};
 
-app.listen(config.port, () => {
-  console.log("Express listening on port " + config.port);
+const sendToken = function(req, res) {
+  res.setHeader('x-auth-token', req.token);
+  return res.status(200).send(JSON.stringify(req.user));
+};
+
+//token handling middleware
+const authenticate = expressJwt({
+  secret: process.env.SECRET,
+  requestProperty: 'auth',
+  getToken: (req) => {
+    if (req.headers['x-auth-token']) {
+      return req.headers['x-auth-token'];
+    }
+    return null;
+  }
 });
 
-mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => {
+app.use(express.static('public'));
 
-  if (err) { console.log("Database error: " + err); }
-  else {
-    let db = client.db('freecodecamp2018');
-    console.log("Successful database connection");
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + '/app/index.html');
+});
 
-    // serialization and app.listen
-    passport.serializeUser((user, done) => {
-      done(null, user.id);
-    });
+app.get('/api', async (req, res) => {
+  let lat = req.query.lat; // 49.32413
+  let lon = req.query.lon; // 11.32414
+  let loc = req.query.loc; // boston,ma
+  let data;
 
-    passport.deserializeUser((id, done) => {
-      done(null, user.id);
-    });
 
-    passport.use(new TwitterStrategy({
-      consumerKey: process.env.TWITTER_CONSUMER_ID,
-      consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-      callbackURL: "http://localhost:8080/auth/twitter/callback"
-    },
-    (accessToken, refreshToken, profile, cb) => {
-      cb(null, profile);
-    }))
-
+  if (loc) { // api with location from search input
+    await fetch('https://api.yelp.com/v3/businesses/search?categories=nightlife&limit=50&location=' + loc, {
+      headers: {
+        Authorization: 'Bearer ' + process.env.YELP_API_KEY
+      }
+    })
+    .then((res) => res.json())
+    .then((json) => {
+      data = json;
+      return;
+    })
+    .catch(err => console.log(err));
+  }
+  else { // api call with lat and lon
+    await fetch('https://api.yelp.com/v3/businesses/search?categories=nightlife&limit=50&latitude=' + lat + "&longitude=" + lon, {
+      headers: {
+        Authorization: 'Bearer ' + process.env.YELP_API_KEY
+      }
+    })
+    .then((res) => res.json())
+    .then((json) => {
+      data = json;
+      return;
+    })
+    .catch(err => console.log(err));
   }
 
-  app.get('/', async (req, res) => {
+  res.send({ data: data.businesses });
+});
 
-    if (req.session.passport && req.session.passport.user) { // need both because otherwise will be undefined and will break
-      res.render(process.cwd() + '/views/public/index', { loggedIn: true, name: req.session.display_name });
-    }
-    else {
-      res.render(process.cwd() + '/views/public/index', { loggedIn: false, name: null });
-    }
-  });
-
-  app.get('/api', async (req, res) => {
-    let lat = req.query.lat; // 49.32413
-    let lon = req.query.lon; // 11.32414
-    let loc = req.query.loc; // boston,ma
-    let data;
-
-
-    if (loc) { // api with location from search input
-      await fetch('https://api.yelp.com/v3/businesses/search?categories=nightlife&limit=50&location=' + loc, {
-        headers: {
-          Authorization: 'Bearer ' + process.env.YELP_API_KEY
-        }
-      })
-      .then((res) => res.json())
-      .then((json) => {
-        console.log(json);
-        data = json;
-        return;
-      })
-      .catch(err => console.log(err));
-    }
-    else { // api call with lat and lon
-      await fetch('https://api.yelp.com/v3/businesses/search?categories=nightlife&limit=50&latitude=' + lat + "&longitude=" + lon, {
-        headers: {
-          Authorization: 'Bearer ' + process.env.YELP_API_KEY
-        }
-      })
-      .then((res) => res.json())
-      .then((json) => {
-        data = json;
-        return;
-      })
-      .catch(err => console.log(err));
-    }
-
-    res.send({ data: data.businesses });
-  });
-
-  app.route('/auth/twitter')
-  .get(passport.authenticate('twitter'), (req, res) => {
-    console.log("hello");
-    // res.redirect('/');
-  });
-
-  app.route('/auth/twitter/callback')
-  .get(passport.authenticate('twitter', { failureRedirect: '/' }), (req, res) => {
-    console.log("hello2");
-    req.session.user_id = req.user.id; // number
-    req.session.display_name = req.user.displayName || ""; // Scott Lieber
-    req.session.username = req.user.username || ""; // lieberscott
-    req.session.provider = req.user.provider || ""; // twitter
-    res.redirect('/');
-  });
-
-  app.route('/checklogin')
-  .get((req, res) => {
-    res.redirect('/'); // ('/') will return the checklogin logic as json to the React component
-  });
-
-  app.route('/logout')
-  .get((req, res) => {
-    req.logout();
-    res.redirect('/');
-  });
-
-  app.route('/mongo')
+app.route('/auth/twitter/reverse')
   .post((req, res) => {
-    db.collection('bars').update(
-      { yelp_id: yelp_id },
-      { $addToSet: { going: name } },
-      { upsert: true },
-      (err, data) => {
-        if (err) { console.log(err); }
-        else {
-          // do something?
-        }
+    request.post({
+      url: 'https://api.twitter.com/oauth/request_token',
+      oauth: {
+        oauth_callback: "http://easy-stitch.glitch.me/auth/twitter", // /callback
+        consumer_key: process.env.TWITTER_CONSUMER_KEY,
+        consumer_secret: process.env.TWITTER_CONSUMER_SECRET
       }
-    )
-  })
+    }, (err, r, body) => {
+      if (err) { return res.send(500, { message: err.message }); }
+      
+      let jsonStr = '{ "' + body.replace(/&/g, '", "').replace(/=/g, '": "') + '"}';
+      res.send(JSON.parse(jsonStr));
+    });
+});
 
+
+app.route('/auth/twitter')
+  .post((req, res, next) => {
+    request.post({
+      url: 'https://api.twitter.com/oauth/access_token?oauth_verifier',
+      oauth: {
+        consumer_key: process.env.TWITTER_CONSUMER_KEY,
+        consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+        token: req.query.oauth_token
+      },
+      form: { oauth_verifier: req.query.oauth_verifier }
+    }, (err, r, body) => {
+      if (err) { return res.send(500, { message: err.message }); }
+
+      const bodyString = '{ "' + body.replace(/&/g, '", "').replace(/=/g, '": "') + '"}';
+      const parsedBody = JSON.parse(bodyString);
+      
+      req.body['oauth_token'] = parsedBody.oauth_token;
+      req.body['oauth_token_secret'] = parsedBody.oauth_token_secret;
+      req.body['user_id'] = parsedBody.user_id;
+
+      next();
+    });
+  }, passport.authenticate('twitter-token', {session: false}), function(req, res, next) {
+      if (!req.user) {
+        return res.send(401, 'User Not Authenticated');
+      }
+
+      // prepare token for API
+      req.auth = {
+        id: req.user.id
+      };
+
+      return next();
+}, generateToken, sendToken);
+
+
+// listen for requests :)
+const listener = app.listen(process.env.PORT, () => {
+  console.log('Your app is listening on port ' + listener.address().port);
 });

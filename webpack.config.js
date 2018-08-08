@@ -1,15 +1,24 @@
+const path = require('path');
+
 module.exports = {
-  entry: "./src/index.js",
+  mode: 'production',
+  context: path.join(__dirname, './'),
+  entry: './app/app.jsx',
   output: {
-    path: __dirname + "/public",
-    filename: "bundle.js"
+    path: path.join(__dirname, 'public'),
+    filename: 'bundle.js',
+  },
+  resolve: {
+    extensions: ['.js', '.jsx'],
   },
   module: {
     rules: [
       {
-        test: /\.js/,
-        loader: "babel-loader"
-      }
-    ]
-  }
+        test: /\.jsx?$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/,
+        include: path.join(__dirname, 'app'),
+      },
+    ],
+  },
 };
