@@ -13,21 +13,25 @@ class HelloWorld extends Component {
       bars: [], // will be an array of objects
       loggedIn: false,
       name: null,
-      token: ''
+      token: '',
+      twitter_id: '',
+      user_names: []
     };
     this.onSuccess = this.onSuccess.bind(this)
+    this.onFail = this.onFail.bind(this)
   }
 
 
   onSuccess(res) {
     const token = res.headers.get('x-auth-token');
-    res.json().then((user) => {
+    res.json().then((user) => { // user :  { id: '81957315', name: 'Scott Lieber' }
       console.log(user);
       if (token) {
         this.setState({
           loggedIn: true,
-          name: user,
-          token: token
+          name: user.name,
+          token: token,
+          twitter_id: user.id
         });
       }
     });
@@ -88,7 +92,7 @@ class HelloWorld extends Component {
         <Search search={ () => this.search() }/>
         <div className="row">
           { this.state.bars.map(bar =>
-            <Bar key={ bar.id } loggedIn={ this.state.loggedIn } name={ bar.name } rating={ bar.rating } price={ bar.price } image_url={ bar.image_url } loc={ bar.location.address1  } />
+            <Bar key={ bar.id } yelp_id={ bar.id } twitter_id={ this.state.twitter_id } user_name={ this.state.name } user_namesArr={ bar.user_names } loggedIn={ this.state.loggedIn } name={ bar.name } rating={ bar.rating } price={ bar.price } image_url={ bar.image_url } loc={ bar.location.address1 } />
           )}
         </div>
       </div>
@@ -100,7 +104,7 @@ class HelloWorld extends Component {
 App.propTypes = {
   bars: PropTypes.array
 }
-*/
+
 HelloWorld.defaultProps = {
   bars: [{
     id: 1,
@@ -113,5 +117,6 @@ HelloWorld.defaultProps = {
     }
   }]
 }
+*/
 
 module.exports = HelloWorld;

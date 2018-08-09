@@ -12,7 +12,10 @@ module.exports = () => {
       includeEmail: true
     },
     (token, tokenSecret, profile, done) => {
-      return done(null, profile.emails[0].value);
+      // console.log("profile : ", profile);
+      let userinfo = { id: profile.id, name: profile.displayName };
+      return done(null, userinfo);
+      // return done(null, profile.emails[0].value);
     }));
 
 };
