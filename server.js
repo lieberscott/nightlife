@@ -1,24 +1,13 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 const mongo = require('mongodb').MongoClient;
-
-let BarSchema = new Schema({
-  yelp_id: { type: Number, required: true },
-  user_ids: [Number],
-  user_names: [String]
-});
-
-let Bar = mongoose.model("Bar", BarSchema);
+const express = require('express');
+const app = express();
 
 const bodyparser = require('body-parser');
-const express = require('express');
 const expressJwt = require('express-jwt');
-const app = express();
 const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const request = require('request');
-
 
 // passport configuration (from passport.js file)
 const passportConfig = require('./passport');
@@ -61,7 +50,6 @@ const sendToken = function(req, res) {
   return res.status(200).send(JSON.stringify(req.user));
 };
 
-//token handling middleware
 const authenticate = expressJwt({
   secret: process.env.SECRET,
   requestProperty: 'auth',
@@ -241,7 +229,7 @@ mongo.connect(process.env.DATABASE, (err, client) => {
     db.collection('bars').update({ yelp_id },
     {
       $addToSet: { user_ids: user_id, user_names: user_name },
-      $set: { expireAt: new Date('August 9, 2018 02:47:00'), createdAt: new Date() }
+      $set: { expireAt: new Date('August 9, 2018 22:47:00'), createdAt: new Date() }
     }, { upsert: true }, (err, doc) => {
       if (err) { console.log("err : ", err); }
       else {
