@@ -14,7 +14,15 @@ class Bar extends React.Component {
     };
   }
   
-  componentDidUpdate(prevProps, prevState) {
+  componentDidMount() { // need the same for DidMount and DidUpdate, in case user is signed in upon load (from previous session), or signs in after load
+    if (this.state.user_namesArr.includes(this.props.user_name) && !this.state.countMeIn) {
+      this.setState({
+        countMeIn: true
+      });
+    }
+  }
+  
+  componentDidUpdate(prevProps, prevState) { // DidUpdate does NOT fire on initial render, only subsequent updates
     if (this.state.user_namesArr.includes(this.props.user_name) && !prevState.countMeIn) {
       this.setState({
         countMeIn: true
@@ -50,7 +58,7 @@ class Bar extends React.Component {
   render() {
     return (
       <div className="col-md-3 onecomponent">
-        <div>
+        <div className="barname">
           { this.props.name }
         </div>
         <div>

@@ -9,7 +9,6 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const request = require('request');
 
-// passport configuration (from passport.js file)
 const passportConfig = require('./passport');
 passportConfig();
 
@@ -21,22 +20,10 @@ const corsOption = {
   credentials: true,
   exposedHeaders: ['x-auth-token']
 };
-app.use(cors(corsOption));
-
-// body parser
-app.use(bodyparser.urlencoded({
-  extended: true
-}));
-app.use(bodyparser.json());
 
 // jsonwebtokens functions
 const createToken = function(auth) {
-  return jwt.sign({
-    id: auth.id
-  }, process.env.SECRET,
-  {
-    expiresIn: 60 * 120
-  });
+  return jwt.sign({ id: auth.id }, process.env.SECRET, { expiresIn: 60 * 120 }); // expiresIn 120 minutes
 };
 
 const generateToken =  function(req, res, next) {
@@ -46,7 +33,6 @@ const generateToken =  function(req, res, next) {
 
 const sendToken = function(req, res) {
   res.setHeader('x-auth-token', req.token);
-  console.log("user : ", req.user);
   return res.status(200).send(JSON.stringify(req.user));
 };
 
@@ -61,7 +47,14 @@ const authenticate = expressJwt({
   }
 });
 
+
+app.use(cors(corsOption));
+app.use(bodyparser.urlencoded({ extended: true }));
+app.use(bodyparser.json());
+
 app.use(express.static('public'));
+
+app.set('view engine', 'pug');
 
 mongo.connect(process.env.DATABASE, (err, client) => {
   if(err) { console.log('Database error: ' + err); }
@@ -70,7 +63,7 @@ mongo.connect(process.env.DATABASE, (err, client) => {
   db.collection("bars").createIndex( { "expireAt": 1 }, { expireAfterSeconds: 20 } );
 
   app.get("/", (req, res) => {
-    res.sendFile(__dirname + '/app/index.html');
+    res.render(__dirname + '/app/index.pug');
   });
 
   app.get('/api', async (req, res) => {
@@ -229,7 +222,7 @@ mongo.connect(process.env.DATABASE, (err, client) => {
     db.collection('bars').update({ yelp_id },
     {
       $addToSet: { user_ids: user_id, user_names: user_name },
-      $set: { expireAt: new Date('August 9, 2018 22:47:00'), createdAt: new Date() }
+      $set: { expireAt: new Date('August 10, 2018 22:47:00'), createdAt: new Date() }
     }, { upsert: true }, (err, doc) => {
       if (err) { console.log("err : ", err); }
       else {
@@ -255,10 +248,6 @@ mongo.connect(process.env.DATABASE, (err, client) => {
     });
     res.send({ data: "good" });
   });
-
-
-
-
 
 });
 

@@ -3,6 +3,12 @@ img {
   width: 100%;
 }
 
+.barname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .col-md-3 {
   border: 1px solid black;
 }
