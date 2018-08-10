@@ -25,8 +25,8 @@ class HelloWorld extends Component {
   onSuccess(res) {
     const token = res.headers.get('x-auth-token');
     res.json().then((user) => { // user :  { id: '81957315', name: 'Scott Lieber' }
-      console.log(user);
       if (token) {
+        localStorage.setItem('nightlife', JSON.stringify({ name: user.name, token: token, twitter_id: user.id })); // localStorage can only be set as a string, so we use JSON.stringify
         this.setState({
           loggedIn: true,
           name: user.name,
@@ -42,6 +42,7 @@ class HelloWorld extends Component {
   };
 
   logout() {
+    localStorage.removeItem('nightlife');
     this.setState({
       loggedIn: false,
       token: '',
@@ -51,6 +52,7 @@ class HelloWorld extends Component {
   search() {
     console.log("search");
     let loc = document.getElementById("location").value;
+    localStorage.setItem('nightlifesearch', loc);
     let url = "/api/?&loc=" + loc;
     fetch(url)
     .then((res) => res.json())
@@ -62,8 +64,34 @@ class HelloWorld extends Component {
     .catch(err => console.log(err));
   }
 
-  componentWillMount() {
-    if (navigator.geolocation) {
+
+  componentDidMount() {
+        
+    const local = localStorage.getItem('nightlife');
+    const loc = localStorage.getItem('nightlifesearch');
+    if (local) {
+      let info = JSON.parse(local);
+      this.setState({
+        loggedIn: true,
+        name: info.name,
+        token: info.token,
+        twitter_id: info.twitter_id
+      });
+    }
+    
+    if (loc) {
+      let url = "/api/?loc=" + loc;
+      fetch(url)
+      .then((res) => res.json())
+      .then((json) => {
+      this.setState({
+        bars: json.data // will be an array of objects
+      })
+    })
+    .catch(err => console.log(err));
+    }
+    
+    else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         let lat = pos.coords.latitude;
         let lon = pos.coords.longitude;
