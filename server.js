@@ -212,17 +212,13 @@ mongo.connect(process.env.DATABASE, (err, client) => {
     let month = today.getMonth();
     let day = today.getDate();
     
-    let tomorrow = new Date(year, month, day, 6);
+    let tomorrow = new Date(year, month, day, 11);
     tomorrow.setDate(today.getDate()+1); // sets date for 6 a.m. tomorrow
-    
-    let obj = { }; // add expiresAt: tomorrow, plus other data
-
-    let data;
 
     db.collection('bars').update({ yelp_id },
     {
       $addToSet: { user_ids: user_id, user_names: user_name },
-      $set: { expireAt: new Date('August 10, 2018 22:47:00'), createdAt: new Date() }
+      $set: { expireAt: tomorrow, createdAt: new Date() }
     }, { upsert: true }, (err, doc) => {
       if (err) { console.log("err : ", err); }
       else {

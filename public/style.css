@@ -1,35 +1,100 @@
-img {
-  min-height: 100%;
-  width: 100%;
+body {
+  font-family: 'Open Sans', sans-serif;
+  min-width: 300px;
 }
 
-.barname {
+a, a:link, a:visited, a:hover, a:active {
+  text-decoration: none !important;
+}
+
+h1 {
+  font-weight: bold;
+}
+
+.address {
+  color: black;
+  font-size: 16px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.col-md-3 {
-  border: 1px solid black;
+.barname {
+  color: black;
+  font-size: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-twitter {
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  color: white;
+  cursor: pointer;
+  outline: none !important;
+}
+
+.col-lg-4 {
+  border-bottom: 1px solid lightgray;
+  margin-top: 12px;
 }
 
 .container {
-  margin-top: 40px;
+  margin-top: 60px;
+}
+
+.going {
+  margin-left: 20px;
 }
 
 .image {
   overflow: hidden;
   height: 200px;
+  margin-top: 5px;
 }
 
-.input-group {
-  padding-bottom: 20px;
+.logouticon {
+  cursor: pointer;
+  margin-bottom: 3px;
+  width: 20px;
+  height: 20px;
+}
+
+.mainimg {
+  min-height: 100%;
+  width: 100%;
+}
+
+.numbergoing {
+  margin-right: 20px;
+}
+
+.offset-lg-3 {
+  margin-top: 10px;
 }
 
 .onecomponent {
-  height: 400px;
+  height: 360px;
 }
 
-/* #location {
-  max-width: 300px;
-} */
+.price {
+  float: right;
+}
+
+.priceline {
+  color: black;
+  font-size: 16px;
+}
+
+.rsvpdetails {
+  cursor: pointer;
+  margin-left: 20px;
+}
+
+.yelplogo {
+  margin-bottom: 10px;
+  margin-left: -5px;
+  height: 50px;
+  width: auto;
+}

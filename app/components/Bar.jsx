@@ -7,11 +7,62 @@ class Bar extends React.Component {
     this.state = {
       countMeIn: false, // coming from Mongo
       numberGoing: this.props.user_namesArr.length, // ANTI-PATTERN: DO NOT (NORMALLY) DO THIS
+      starsUrl: "a",
       user_id: this.props.twitter_id, // setting state with props is an anti-pattern because state is only set
       user_name: this.props.user_name, // once, upon first load. it's very error prone.
       yelp_id: this.props.yelp_id, // may use componentDidUpdate(prevProps) function if necessary
       user_namesArr: this.props.user_namesArr
     };
+  }
+  
+  generateStarImg(stars) {
+    let starsUrl = "";
+    switch(stars) {
+      case 0:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F0.png?1533953882616";
+        break;
+        
+      case 0.5:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F0.png?1533953882616"; // no 0.5 img, so reusing img for 0
+        break;
+        
+      case 1:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F1.png?1533953882891";
+        break;
+        
+      case 1.5:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F1.5.png?1533953882720";
+        break;
+        
+      case 2:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F2.png?1533953882808";
+        break;
+        
+      case 2.5:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F2.5.png?1533953883124";
+        break;
+        
+      case 3:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F3.png?1533953883324";
+        break;
+        
+      case 3.5:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F3.5.png?1533953883034";
+        break;
+        
+      case 4:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F4.png?1533953883509";
+        break;
+        
+      case 4.5:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F4.5.png?1533953883404";
+        break;
+        
+      case 5:
+        starsUrl = "https://cdn.glitch.com/f34ce293-1d70-4950-a37a-cb4cd8dde649%2F5.png?1533953883593";
+        break;
+    }
+    this.setState({ starsUrl });
   }
   
   componentDidMount() { // need the same for DidMount and DidUpdate, in case user is signed in upon load (from previous session), or signs in after load
@@ -20,6 +71,9 @@ class Bar extends React.Component {
         countMeIn: true
       });
     }
+    
+    this.generateStarImg(this.props.rating);
+    
   }
   
   componentDidUpdate(prevProps, prevState) { // DidUpdate does NOT fire on initial render, only subsequent updates
@@ -57,27 +111,29 @@ class Bar extends React.Component {
 
   render() {
     return (
-      <div className="col-md-3 onecomponent">
-        <div className="barname">
+      <div className="col-lg-4 onecomponent">
+        <a href={ this.props.bar_yelp_url } target="_blank">
+        <div className="barname text-center">
           { this.props.name }
         </div>
-        <div>
-          { this.props.rating } { this.props.price }
+        <div className="priceline">
+          <img className="stars" src={ this.state.starsUrl } /> { this.props.review_count } reviews <span className="price">{ this.props.price }</span>
         </div>
         <div className="image">
-          <img src={ this.props.image_url } />
+          <img class="mainimg" src={ this.props.image_url } />
         </div>
-        <div>
-          { this.props.loc }
+        <div className="address text-center">
+          { this.props.loc[0] }., { this.props.loc[1] }
         </div>
+        </a>
         <hr/>
-        <div>
-          { this.state.numberGoing } going
+        <div className="text-center">
+          <span className="numbergoing">{ this.state.numberGoing } going</span>
           {
             this.props.loggedIn ?
             this.state.countMeIn ?
-            <span onClick={ () => this.unrsvp() }>You're going!</span> : // if logged in and already RSVP'd
-            <span onClick={ () => this.rsvp() }>Count me in!</span> : // if logged in but not yet RSVP'd
+            <span className="going" onClick={ () => this.unrsvp() }>You're going!</span> : // if logged in and already RSVP'd
+            <span className="rsvpdetails" onClick={ () => this.rsvp() }>Count me in!</span> : // if logged in but not yet RSVP'd
             <span> Please log in </span> // if not logged in
           }
         </div>
