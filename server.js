@@ -63,7 +63,17 @@ mongo.connect(process.env.DATABASE, (err, client) => {
   db.collection("bars").createIndex( { "expireAt": 1 }, { expireAfterSeconds: 20 } );
 
   app.get("/", (req, res) => {
-    res.render(__dirname + '/app/index.pug');
+    
+    let monthArr = ["Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."];
+    let date = new Date();
+    let day = date.getDate();
+    let m = date.getMonth();
+    let month = monthArr[m];
+    let year = date.getFullYear();
+    
+    let today = month + " " + day + ", " + year;
+    
+    res.render(__dirname + '/app/index.pug', { today });
   });
 
   app.get('/api', async (req, res) => {
