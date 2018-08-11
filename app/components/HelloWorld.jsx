@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 const Link = require('react-router-dom').Link
 import TwitterLogin from 'react-twitter-auth'; // must be like this or won't work
-const Login = require('./Login');
+const Logout = require('./Logout');
 const Bar = require('./Bar');
 const Search = require('./Search');
 
@@ -50,7 +50,6 @@ class HelloWorld extends Component {
   };
 
   search() {
-    console.log("search");
     let loc = document.getElementById("location").value;
     localStorage.setItem('nightlifesearch', loc);
     let url = "/api/?&loc=" + loc;
@@ -114,13 +113,23 @@ class HelloWorld extends Component {
     return (
       <div>
         { this.state.loggedIn ?
-          <Login loggedIn={ this.state.loggedIn } name={ this.state.name } logout={ () => this.logout() } /> :
-          <TwitterLogin loginUrl="https://easy-stitch.glitch.me/auth/twitter" onFailure={ this.onFail } onSuccess={ this.onSuccess }
-         requestTokenUrl="https://easy-stitch.glitch.me/auth/twitter/reverse" /> }
+          <Logout name={ this.state.name } logout={ () => this.logout() } /> :
+          <div className="text-center">
+          <button className="btn btn-primary">
+          <TwitterLogin
+            loginUrl="https://easy-stitch.glitch.me/auth/twitter"
+            onFailure={ this.onFail }
+            onSuccess={ this.onSuccess }
+            requestTokenUrl="https://easy-stitch.glitch.me/auth/twitter/reverse"
+            className="btn-twitter"/>
+          </button>
+          </div> }
         <Search search={ () => this.search() }/>
         <div className="row">
           { this.state.bars.map(bar =>
-            <Bar key={ bar.id } yelp_id={ bar.id } twitter_id={ this.state.twitter_id } user_name={ this.state.name } user_namesArr={ bar.user_names } loggedIn={ this.state.loggedIn } name={ bar.name } rating={ bar.rating } price={ bar.price } image_url={ bar.image_url } loc={ bar.location.address1 } />
+            <Bar key={ bar.id } yelp_id={ bar.id } twitter_id={ this.state.twitter_id } user_name={ this.state.name }
+              user_namesArr={ bar.user_names } loggedIn={ this.state.loggedIn } name={ bar.name } rating={ bar.rating }
+              price={ bar.price } image_url={ bar.image_url || null } loc={ bar.location.display_address } bar_yelp_url={ bar.url } review_count={ bar.review_count } />
           )}
         </div>
       </div>
