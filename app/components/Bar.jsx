@@ -74,14 +74,18 @@ class Bar extends React.Component {
     
     this.generateStarImg(this.props.rating);
     
+    // $('[data-toggle="popover"]').popover();
+    
   }
   
   componentDidUpdate(prevProps, prevState) { // DidUpdate does NOT fire on initial render, only subsequent updates
+    console.log(this.state.user_namesArr);
     if (this.state.user_namesArr.includes(this.props.user_name) && !prevState.countMeIn) {
       this.setState({
         countMeIn: true
       });
     }
+    $('[data-toggle="popover"]').popover();
   }
   
 
@@ -90,7 +94,10 @@ class Bar extends React.Component {
     fetch(url, { method: "POST" })
     .then((res) => res.json())
     .then((json) => {
+      let newArr = this.state.user_namesArr;
+      newArr.push(this.props.user_name);
       this.setState({
+        user_namesArr: newArr,
         numberGoing: this.state.numberGoing + 1,
         countMeIn: true
       });
@@ -102,7 +109,11 @@ class Bar extends React.Component {
     fetch(url, { method: "POST" })
     .then((res) => res.json())
     .then((json) => {
+      let ind = this.state.user_namesArr.indexOf(this.props.user_name);
+      let newArr = this.state.user_namesArr;
+      newArr.splice(ind, 1);
       this.setState({
+        user_namesArr: newArr,
         numberGoing: this.state.numberGoing - 1,
         countMeIn: false
       });
@@ -128,7 +139,9 @@ class Bar extends React.Component {
         </a>
         <hr/>
         <div className="text-center">
-          <span className="numbergoing">{ this.state.numberGoing } going</span>
+          <a tabindex="0" role="button" className="btn btn-success" data-toggle={ this.state.user_namesArr.length > 0 ? "popover" : "" } data-trigger="focus" title="Who's In?" data-content={ this.state.user_namesArr }>
+            { this.state.numberGoing } going
+          </a>
           {
             this.props.loggedIn ?
             this.state.countMeIn ?
