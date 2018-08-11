@@ -1,5 +1,6 @@
 const React = require('react');
 // import PropTypes from 'prop-types'; // https://www.npmjs.com/package/prop-types
+import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 
 class Bar extends React.Component {  
   constructor(props) {
@@ -11,8 +12,10 @@ class Bar extends React.Component {
       user_id: this.props.twitter_id, // setting state with props is an anti-pattern because state is only set
       user_name: this.props.user_name, // once, upon first load. it's very error prone.
       yelp_id: this.props.yelp_id, // may use componentDidUpdate(prevProps) function if necessary
-      user_namesArr: this.props.user_namesArr
+      user_namesArr: this.props.user_namesArr,
+      popover: false
     };
+    this.toggle = this.toggle.bind(this);
   }
   
   generateStarImg(stars) {
@@ -72,20 +75,15 @@ class Bar extends React.Component {
       });
     }
     
-    this.generateStarImg(this.props.rating);
-    
-    // $('[data-toggle="popover"]').popover();
-    
+    this.generateStarImg(this.props.rating);    
   }
   
   componentDidUpdate(prevProps, prevState) { // DidUpdate does NOT fire on initial render, only subsequent updates
-    console.log(this.state.user_namesArr);
     if (this.state.user_namesArr.includes(this.props.user_name) && !prevState.countMeIn) {
       this.setState({
         countMeIn: true
       });
     }
-    $('[data-toggle="popover"]').popover();
   }
   
 
@@ -119,6 +117,12 @@ class Bar extends React.Component {
       });
     })
   }
+  
+  toggle() {
+    this.setState({
+      popover: !this.state.popover
+    });
+  }
 
   render() {
     return (
@@ -139,9 +143,12 @@ class Bar extends React.Component {
         </a>
         <hr/>
         <div className="text-center">
-          <a tabindex="0" role="button" className="btn btn-success" data-toggle={ this.state.user_namesArr.length > 0 ? "popover" : "" } data-trigger="focus" title="Who's In?" data-content={ this.state.user_namesArr }>
-            { this.state.numberGoing } going
-          </a>
+          { /* For this to work, id must have leading letters, otherwise throws massive errors. See here: https://stackoverflow.com/questions/23898873/failed-to-execute-queryselectorall-on-document-how-to-fix */ }
+          <Button id={ "abc" + this.props.yelp_id } className="btn btn-success" onClick={ this.toggle }>{ this.state.numberGoing } going</Button>
+          <Popover placement="right" isOpen={ this.state.popover } target={ "abc" + this.props.yelp_id } toggle={ this.toggle }>
+            <PopoverHeader>Who's In?</PopoverHeader>
+            <PopoverBody>{ this.state.user_namesArr }</PopoverBody>
+          </Popover>
           {
             this.props.loggedIn ?
             this.state.countMeIn ?
